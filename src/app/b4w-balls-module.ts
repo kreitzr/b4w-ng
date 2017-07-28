@@ -4,7 +4,7 @@ declare var b4w: any;
 
 export class BallsModule implements Blend4WebModule {
     name = 'balls';
-    content = (exports: any, require: any) => {
+    context = (exports: any, require: any) => {
             // import modules used by the app
             let m_app =         b4w.require('app');
             let m_cfg =         b4w.require('config');
@@ -16,6 +16,10 @@ export class BallsModule implements Blend4WebModule {
             let m_trans =       b4w.require('transform');
             let m_obj =         b4w.require('objects');
             let m_phys =        b4w.require('physics');
+
+            let mainBall: any;
+            let ballCount = 0;
+            let balls: any = [];
 
             // detect application mode
             let DEBUG = (m_ver.type() === 'DEBUG');
@@ -36,7 +40,24 @@ export class BallsModule implements Blend4WebModule {
                 });
             };
 
-            // exports.getMainBall = m_scenes.get_object_by_name('Sphere');
+            exports.genBall = () => {
+                let newBall = m_obj.copy(mainBall, 'Ball.' + ballCount++);
+
+                let rand_x = (Math.random() * (1 - 0.100) + 0.0200).toFixed(2);
+                let rand_y = (Math.random() * (1 - 0.100) + 0.0200).toFixed(2);
+                m_trans.set_translation(newBall, rand_x, rand_y, 5);
+
+                m_scenes.append_object(newBall);
+                balls.push(newBall);
+
+                m_phys.enable_simulation(newBall);
+
+                // Start removing balls if count exceeds n-balls
+                if (balls.length > 200) {
+                    let oldBall = balls.shift();
+                    m_scenes.remove_object(oldBall);
+                }
+            };
 
             /**
              * callback executed when the app is initialized 
@@ -77,7 +98,7 @@ export class BallsModule implements Blend4WebModule {
             /**
              * callback executed when the scene data is loaded
              */
-            function load_cb(data_id: any, success: any) {
+            let load_cb = (data_id: any, success: any) => {
 
                 if (!success) {
                     console.log('b4w load failure');
@@ -87,10 +108,18 @@ export class BallsModule implements Blend4WebModule {
                 m_app.enable_camera_controls();
 
                 // place your code here...
-            }
+                mainBall = m_scenes.get_object_by_name('Sphere');
+            };
         };
 
-        // GetMainBall() {
-        //     let c = this.content.getMainBall();
-        // }
+    onLoadCallback(obj: any) {
+        console.log('onLoadCallback');
+    }
+
+    genBall(): void {
+        let content = b4w.require('balls_main');
+        content.genBall();
+
+  }
+
 }

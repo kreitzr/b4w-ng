@@ -15,35 +15,18 @@ var AppComponent = (function () {
     function AppComponent(b4w) {
         this.b4w = b4w;
         this.name = 'Blend4Web Test';
-        //   private _main_ball: any;
-        this._obj_count = 0;
-        this._balls = [];
+        this.balls = new b4w_balls_module_1.BallsModule();
     }
     AppComponent.prototype.ngOnInit = function () {
-        this.b4w.InitModule(new b4w_balls_module_1.BallsModule());
+        this.b4w.InitModule(this.balls);
         // // this.timer = Observable.timer(0, 500);
         // // this.sub = this.timer.subscribe(this.genBall);
     };
     AppComponent.prototype.sliderChanged = function (e) {
+        this.balls.genBall();
         // this.sub.unsubscribe();
         // this.timer = Observable.timer(0, e.srcElement.value);
         // this.sub = this.timer.subscribe(this.genBall);
-    };
-    AppComponent.prototype.genBall = function () {
-        //   let context = b4w.require("balls_main");
-        //   console.log(this._main_ball);
-        // let new_ball = this.m_obj.copy(this._main_ball, "Ball." + this._obj_count++);
-        // let rand_x = (Math.random() * (1 - 0.100) + 0.0200).toFixed(2);
-        // let rand_y = (Math.random() * (1 - 0.100) + 0.0200).toFixed(2);
-        // this.m_trans.set_translation(new_ball, rand_x, rand_y, 5);
-        // this.m_scenes.append_object(new_ball);
-        // this._balls.push(new_ball);
-        // this.m_phys.enable_simulation(new_ball);
-        // // Start removing balls if count exceeds n-balls
-        // if (this._balls.length > 200) {
-        //     let old_ball = this._balls.shift();
-        //     this.m_scenes.remove_object(old_ball);
-        // }
     };
     AppComponent.prototype.ngOnDestroy = function () {
         console.log('Destroy timer');

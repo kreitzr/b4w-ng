@@ -13,7 +13,7 @@ var Blend4WebService = (function () {
         return b4w.require(moduleName + '_main');
     };
     Blend4WebService.prototype.InitModule = function (module) {
-        b4w.register(module.name + '_main', module.content);
+        b4w.register(module.name + '_main', module.context);
         b4w.require(module.name + '_main').init();
     };
     return Blend4WebService;

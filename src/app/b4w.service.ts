@@ -10,7 +10,7 @@ export class Blend4WebService {
     }
 
     InitModule(module: Blend4WebModule) {
-        b4w.register(module.name + '_main', module.content);
+        b4w.register(module.name + '_main', module.context);
         b4w.require(module.name + '_main').init();
     }
 }

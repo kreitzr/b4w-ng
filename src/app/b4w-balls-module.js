@@ -2,7 +2,7 @@
 var BallsModule = (function () {
     function BallsModule() {
         this.name = 'balls';
-        this.content = function (exports, require) {
+        this.context = function (exports, require) {
             // import modules used by the app
             var m_app = b4w.require('app');
             var m_cfg = b4w.require('config');
@@ -14,6 +14,9 @@ var BallsModule = (function () {
             var m_trans = b4w.require('transform');
             var m_obj = b4w.require('objects');
             var m_phys = b4w.require('physics');
+            var mainBall;
+            var ballCount = 0;
+            var balls = [];
             // detect application mode
             var DEBUG = (m_ver.type() === 'DEBUG');
             // automatically detect assets path
@@ -30,7 +33,20 @@ var BallsModule = (function () {
                     autoresize: true
                 });
             };
-            // exports.getMainBall = m_scenes.get_object_by_name('Sphere');
+            exports.genBall = function () {
+                var newBall = m_obj.copy(mainBall, 'Ball.' + ballCount++);
+                var rand_x = (Math.random() * (1 - 0.100) + 0.0200).toFixed(2);
+                var rand_y = (Math.random() * (1 - 0.100) + 0.0200).toFixed(2);
+                m_trans.set_translation(newBall, rand_x, rand_y, 5);
+                m_scenes.append_object(newBall);
+                balls.push(newBall);
+                m_phys.enable_simulation(newBall);
+                // Start removing balls if count exceeds n-balls
+                if (balls.length > 200) {
+                    var oldBall = balls.shift();
+                    m_scenes.remove_object(oldBall);
+                }
+            };
             /**
              * callback executed when the app is initialized
              */
@@ -63,19 +79,24 @@ var BallsModule = (function () {
             /**
              * callback executed when the scene data is loaded
              */
-            function load_cb(data_id, success) {
+            var load_cb = function (data_id, success) {
                 if (!success) {
                     console.log('b4w load failure');
                     return;
                 }
                 m_app.enable_camera_controls();
                 // place your code here...
-            }
+                mainBall = m_scenes.get_object_by_name('Sphere');
+            };
         };
-        // GetMainBall() {
-        //     let c = this.content.getMainBall();
-        // }
     }
+    BallsModule.prototype.onLoadCallback = function (obj) {
+        console.log('onLoadCallback');
+    };
+    BallsModule.prototype.genBall = function () {
+        var content = b4w.require('balls_main');
+        content.genBall();
+    };
     return BallsModule;
 }());
 exports.BallsModule = BallsModule;
