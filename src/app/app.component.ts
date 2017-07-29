@@ -26,12 +26,12 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.b4w.InitModule(this.balls);
 
-    // // this.timer = Observable.timer(0, 500);
-    // // this.sub = this.timer.subscribe(this.genBall);
+    // this.timer = Observable.timer(0, 500);
+    // this.sub = this.timer.subscribe(this.balls.genBall('Color1'));
   }
 
-  sliderChanged(e: Event){
-    this.balls.genBall();
+  sliderChanged(e: Event) {
+    this.balls.genBall(e.target.id);
 
     // this.sub.unsubscribe();
     // this.timer = Observable.timer(0, e.srcElement.value);

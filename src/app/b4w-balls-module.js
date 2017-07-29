@@ -14,7 +14,10 @@ var BallsModule = (function () {
             var m_trans = b4w.require('transform');
             var m_obj = b4w.require('objects');
             var m_phys = b4w.require('physics');
+            var m_mat = b4w.require('material');
+            var m_rgba = b4w.require('rgba');
             var mainBall;
+            var plane;
             var ballCount = 0;
             var balls = [];
             // detect application mode
@@ -33,13 +36,14 @@ var BallsModule = (function () {
                     autoresize: true
                 });
             };
-            exports.genBall = function () {
+            exports.genBall = function (color) {
                 var newBall = m_obj.copy(mainBall, 'Ball.' + ballCount++);
                 var rand_x = (Math.random() * (1 - 0.100) + 0.0200).toFixed(2);
                 var rand_y = (Math.random() * (1 - 0.100) + 0.0200).toFixed(2);
                 m_trans.set_translation(newBall, rand_x, rand_y, 5);
                 m_scenes.append_object(newBall);
                 balls.push(newBall);
+                m_mat.inherit_material(plane, color, newBall, 'Sphere');
                 m_phys.enable_simulation(newBall);
                 // Start removing balls if count exceeds n-balls
                 if (balls.length > 200) {
@@ -87,15 +91,16 @@ var BallsModule = (function () {
                 m_app.enable_camera_controls();
                 // place your code here...
                 mainBall = m_scenes.get_object_by_name('Sphere');
+                plane = m_scenes.get_object_by_name('Plane');
             };
         };
     }
     BallsModule.prototype.onLoadCallback = function (obj) {
         console.log('onLoadCallback');
     };
-    BallsModule.prototype.genBall = function () {
+    BallsModule.prototype.genBall = function (color) {
         var content = b4w.require('balls_main');
-        content.genBall();
+        content.genBall(color);
     };
     return BallsModule;
 }());

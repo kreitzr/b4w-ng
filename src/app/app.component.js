@@ -19,11 +19,11 @@ var AppComponent = (function () {
     }
     AppComponent.prototype.ngOnInit = function () {
         this.b4w.InitModule(this.balls);
-        // // this.timer = Observable.timer(0, 500);
-        // // this.sub = this.timer.subscribe(this.genBall);
+        // this.timer = Observable.timer(0, 500);
+        // this.sub = this.timer.subscribe(this.balls.genBall('Color1'));
     };
     AppComponent.prototype.sliderChanged = function (e) {
-        this.balls.genBall();
+        this.balls.genBall(e.target.id);
         // this.sub.unsubscribe();
         // this.timer = Observable.timer(0, e.srcElement.value);
         // this.sub = this.timer.subscribe(this.genBall);

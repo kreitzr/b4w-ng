@@ -1,3 +1,4 @@
+import { Output, EventEmitter } from '@angular/core';
 import { Blend4WebModule } from './b4w-module';
 
 declare var b4w: any;
@@ -16,8 +17,11 @@ export class BallsModule implements Blend4WebModule {
             let m_trans =       b4w.require('transform');
             let m_obj =         b4w.require('objects');
             let m_phys =        b4w.require('physics');
+            let m_mat =         b4w.require('material');
+            let m_rgba =        b4w.require('rgba');
 
             let mainBall: any;
+            let plane: any;
             let ballCount = 0;
             let balls: any = [];
 
@@ -40,7 +44,7 @@ export class BallsModule implements Blend4WebModule {
                 });
             };
 
-            exports.genBall = () => {
+            exports.genBall = (color: string) => {
                 let newBall = m_obj.copy(mainBall, 'Ball.' + ballCount++);
 
                 let rand_x = (Math.random() * (1 - 0.100) + 0.0200).toFixed(2);
@@ -50,6 +54,7 @@ export class BallsModule implements Blend4WebModule {
                 m_scenes.append_object(newBall);
                 balls.push(newBall);
 
+                m_mat.inherit_material(plane, color, newBall, 'Sphere');
                 m_phys.enable_simulation(newBall);
 
                 // Start removing balls if count exceeds n-balls
@@ -109,6 +114,7 @@ export class BallsModule implements Blend4WebModule {
 
                 // place your code here...
                 mainBall = m_scenes.get_object_by_name('Sphere');
+                plane = m_scenes.get_object_by_name('Plane');
             };
         };
 
@@ -116,10 +122,8 @@ export class BallsModule implements Blend4WebModule {
         console.log('onLoadCallback');
     }
 
-    genBall(): void {
+    genBall(color: string): void {
         let content = b4w.require('balls_main');
-        content.genBall();
-
-  }
-
+        content.genBall(color);
+    }
 }
