@@ -1,6 +1,6 @@
 import { BallsModule } from './b4w-balls-module';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Observable, Subscription } from 'rxjs/Rx';
+import { Observable } from 'rxjs/Rx';
 
 import { Blend4WebService } from './b4w.service';
 import { Blend4WebModule } from './b4w-module';
@@ -16,30 +16,45 @@ export class AppComponent implements OnInit, OnDestroy {
   name = 'Blend4Web Test';
   modules: Blend4WebModule[];
 
-  private timer: any;
-  private sub: Subscription;
+  interval1 = 2000;
+  interval2 = 2000;
+
+  private subs = {};
 
   private balls: BallsModule = new BallsModule();
 
-  constructor(private b4w: Blend4WebService) {}
+  constructor(private b4w: Blend4WebService) {
+    this.balls.onLoadCallback$.subscribe(this.initScene);
+  }
 
   ngOnInit() {
     this.b4w.InitModule(this.balls);
+  }
 
-    // this.timer = Observable.timer(0, 500);
-    // this.sub = this.timer.subscribe(this.balls.genBall('Color1'));
+  private initScene = () => {
+    this.subs['Color1'] = Observable.timer(0, 2000).subscribe(() => {
+      this.balls.genBall('Color1');
+    });
+
+    this.subs['Color2'] = Observable.timer(1000, 2000).subscribe(() => {
+      this.balls.genBall('Color2');
+    });
+  }
+
+  private initTimers(id: string, value: number) {
+    this.subs[id].unsubscribe();
+    this.subs[id] = Observable.timer(value / 2, value).subscribe(() => {
+      this.balls.genBall(id);
+    });
   }
 
   sliderChanged(e: Event) {
-    this.balls.genBall(e.target.id);
-
-    // this.sub.unsubscribe();
-    // this.timer = Observable.timer(0, e.srcElement.value);
-    // this.sub = this.timer.subscribe(this.genBall);
+    this.initTimers(e.target.id, e.target.value);
   }
 
   ngOnDestroy() {
     console.log('Destroy timer');
-    this.sub.unsubscribe();
+    // this.sub1.unsubscribe();
+    // this.sub2.unsubscribe();
   }
 }

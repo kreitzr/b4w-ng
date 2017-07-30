@@ -1,6 +1,10 @@
 "use strict";
+var Subject_1 = require("rxjs/Subject");
 var BallsModule = (function () {
     function BallsModule() {
+        var _this = this;
+        this.onLoadCallbackSource = new Subject_1.Subject();
+        this.onLoadCallback$ = this.onLoadCallbackSource.asObservable();
         this.name = 'balls';
         this.context = function (exports, require) {
             // import modules used by the app
@@ -92,12 +96,13 @@ var BallsModule = (function () {
                 // place your code here...
                 mainBall = m_scenes.get_object_by_name('Sphere');
                 plane = m_scenes.get_object_by_name('Plane');
+                _this.onLoadCallbackSource.next();
             };
         };
     }
-    BallsModule.prototype.onLoadCallback = function (obj) {
-        console.log('onLoadCallback');
-    };
+    // onLoadCallback(obj: any) {
+    //     console.log('onLoadCallback');
+    // }
     BallsModule.prototype.genBall = function (color) {
         var content = b4w.require('balls_main');
         content.genBall(color);

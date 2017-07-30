@@ -1,9 +1,12 @@
-import { Output, EventEmitter } from '@angular/core';
+import { Subject }    from 'rxjs/Subject';
 import { Blend4WebModule } from './b4w-module';
 
 declare var b4w: any;
 
 export class BallsModule implements Blend4WebModule {
+    private onLoadCallbackSource = new Subject();
+    onLoadCallback$ = this.onLoadCallbackSource.asObservable();
+
     name = 'balls';
     context = (exports: any, require: any) => {
             // import modules used by the app
@@ -115,12 +118,14 @@ export class BallsModule implements Blend4WebModule {
                 // place your code here...
                 mainBall = m_scenes.get_object_by_name('Sphere');
                 plane = m_scenes.get_object_by_name('Plane');
+
+                this.onLoadCallbackSource.next();
             };
         };
 
-    onLoadCallback(obj: any) {
-        console.log('onLoadCallback');
-    }
+    // onLoadCallback(obj: any) {
+    //     console.log('onLoadCallback');
+    // }
 
     genBall(color: string): void {
         let content = b4w.require('balls_main');

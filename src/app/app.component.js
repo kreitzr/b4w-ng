@@ -10,27 +10,44 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var b4w_balls_module_1 = require("./b4w-balls-module");
 var core_1 = require("@angular/core");
+var Rx_1 = require("rxjs/Rx");
 var b4w_service_1 = require("./b4w.service");
 var AppComponent = (function () {
     function AppComponent(b4w) {
+        var _this = this;
         this.b4w = b4w;
         this.name = 'Blend4Web Test';
+        this.interval1 = 2000;
+        this.interval2 = 2000;
+        this.subs = {};
         this.balls = new b4w_balls_module_1.BallsModule();
+        this.initScene = function () {
+            _this.subs['Color1'] = Rx_1.Observable.timer(0, 2000).subscribe(function () {
+                _this.balls.genBall('Color1');
+            });
+            _this.subs['Color2'] = Rx_1.Observable.timer(1000, 2000).subscribe(function () {
+                _this.balls.genBall('Color2');
+            });
+        };
+        this.balls.onLoadCallback$.subscribe(this.initScene);
     }
     AppComponent.prototype.ngOnInit = function () {
         this.b4w.InitModule(this.balls);
-        // this.timer = Observable.timer(0, 500);
-        // this.sub = this.timer.subscribe(this.balls.genBall('Color1'));
+    };
+    AppComponent.prototype.initTimers = function (id, value) {
+        var _this = this;
+        this.subs[id].unsubscribe();
+        this.subs[id] = Rx_1.Observable.timer(value / 2, value).subscribe(function () {
+            _this.balls.genBall(id);
+        });
     };
     AppComponent.prototype.sliderChanged = function (e) {
-        this.balls.genBall(e.target.id);
-        // this.sub.unsubscribe();
-        // this.timer = Observable.timer(0, e.srcElement.value);
-        // this.sub = this.timer.subscribe(this.genBall);
+        this.initTimers(e.target.id, e.target.value);
     };
     AppComponent.prototype.ngOnDestroy = function () {
         console.log('Destroy timer');
-        this.sub.unsubscribe();
+        // this.sub1.unsubscribe();
+        // this.sub2.unsubscribe();
     };
     return AppComponent;
 }());
