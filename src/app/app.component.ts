@@ -48,7 +48,7 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
-  sliderChanged(e: Event) {
+  sliderChanged(e: any) {
     this.initTimers(e.target.id, e.target.value);
   }
 
