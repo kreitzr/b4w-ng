@@ -16,8 +16,8 @@ export class AppComponent implements OnInit, OnDestroy {
   name = 'Blend4Web Test';
   modules: Blend4WebModule[];
 
-  interval1 = 2000;
-  interval2 = 2000;
+  interval1 = 500;
+  interval2 = 500;
 
   private subs = {};
 

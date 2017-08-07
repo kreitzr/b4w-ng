@@ -22,20 +22,22 @@ body {
   font-size: x-large;
 }
 
-.controls {
+ .controls {
   position: absolute;
   width: 100%;
-  left: 25%;
-  bottom: 4%;
-  z-index: 2;
-}
+  left: 20%;
+  bottom: 4%; 
+  z-index: 2; 
+} 
 
 #Color1 {
   direction: rtl;
+  width:30%;
 }
 
 #Color2 {
   direction: rtl;
+  width:30%;
 }
 
 input[type=range]:focus {
