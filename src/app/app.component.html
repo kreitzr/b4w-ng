@@ -3,7 +3,10 @@
         <input type="range" id="Color1" [value]="interval1" (input)="interval1=$event.target.value" min="10" max="500">
         <input type="range" id="Color2" [value]="interval2" (input)="interval2=$event.target.value" min="10" max="500">
     </div>
+     <label class="switch">
+        <input type="checkbox" [(ngModel)]="recordEnabled" (ngModelChange)="recordModeChanged()"/>
+    </label> 
+    <audio autoplay></audio>
 </div>
-
 <div id="main_canvas_container"></div>
 

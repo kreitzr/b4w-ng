@@ -13,11 +13,17 @@ import { Blend4WebModule } from './b4w-module';
 })
 
 export class AppComponent implements OnInit, OnDestroy {
+  private audioContext: AudioContext;
+  private analyser: AnalyserNode;
+  audioStream: MediaStream;
+
   name = 'Blend4Web Test';
   modules: Blend4WebModule[];
 
   interval1 = 500;
   interval2 = 500;
+
+  recordEnabled = false;
 
   private subs = {};
 
@@ -28,6 +34,8 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.audioContext = new AudioContext();
+    this.analyser = this.audioContext.createAnalyser();
     this.b4w.InitModule(this.balls);
   }
 
@@ -48,8 +56,80 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
+  private enableAudioCapture = () => {
+    let audio = document.querySelector('audio');
+
+    if (this.recordEnabled) {
+      navigator.getUserMedia(
+        {
+          audio: true
+        },
+        (stream) => {
+          audio.src = URL.createObjectURL(stream);
+          audio.play();
+
+          this.audioStream = stream;
+
+          let source = this.audioContext.createMediaStreamSource(stream);
+          source.connect(this.analyser);
+          // analyser.connect(this.audioContext.destination);
+
+          this.visualize();
+        },
+        (err) => {
+          console.log('Error!');
+        });
+    } else {
+      this.audioStream.getAudioTracks().forEach((track) => {
+        track.stop();
+      });
+    }
+  }
+
+  private visualize = () => {
+    if (this.recordEnabled) {
+      requestAnimationFrame(this.visualize);
+    }
+
+    this.analyser.fftSize = 32;
+    this.analyser.minDecibels = -40;
+    this.analyser.maxDecibels = -10;
+
+    let bufferLength = this.analyser.frequencyBinCount;
+    let dataArray = new Uint8Array(bufferLength);
+    // let dataArray = new Float32Array(bufferLength);
+
+    this.analyser.getByteFrequencyData(dataArray);
+    // this.analyser.getFloatFrequencyData(dataArray);
+
+    let getAverage = (data: Uint8Array) => {
+      let sum = 0;
+      for (let i = 0; i < data.length; i++) {
+        sum += data[i];
+        return sum / data.length;
+      }
+    };
+
+    let avg = getAverage(dataArray);
+    if (avg > 0) {
+      console.log(avg);
+      this.balls.genBall('Color1');
+    }
+  }
+
   sliderChanged(e: any) {
     this.initTimers(e.target.id, e.target.value);
+  }
+
+  recordModeChanged() {
+    if (this.recordEnabled) {
+      // Clear ball timers
+      Object.keys(this.subs).forEach(key => {
+        this.subs[key].unsubscribe();
+      });
+    }
+
+    this.enableAudioCapture();
   }
 
   ngOnDestroy() {

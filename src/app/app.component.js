@@ -19,6 +19,7 @@ var AppComponent = (function () {
         this.name = 'Blend4Web Test';
         this.interval1 = 500;
         this.interval2 = 500;
+        this.recordEnabled = false;
         this.subs = {};
         this.balls = new b4w_balls_module_1.BallsModule();
         this.initScene = function () {
@@ -29,9 +30,59 @@ var AppComponent = (function () {
                 _this.balls.genBall('Color2');
             });
         };
+        this.enableAudioCapture = function () {
+            var audio = document.querySelector('audio');
+            if (_this.recordEnabled) {
+                navigator.getUserMedia({
+                    audio: true
+                }, function (stream) {
+                    audio.src = URL.createObjectURL(stream);
+                    audio.play();
+                    _this.audioStream = stream;
+                    var source = _this.audioContext.createMediaStreamSource(stream);
+                    source.connect(_this.analyser);
+                    // analyser.connect(this.audioContext.destination);
+                    _this.visualize();
+                }, function (err) {
+                    console.log('Error!');
+                });
+            }
+            else {
+                _this.audioStream.getAudioTracks().forEach(function (track) {
+                    track.stop();
+                });
+            }
+        };
+        this.visualize = function () {
+            if (_this.recordEnabled) {
+                requestAnimationFrame(_this.visualize);
+            }
+            _this.analyser.fftSize = 32;
+            _this.analyser.minDecibels = -40;
+            _this.analyser.maxDecibels = -10;
+            var bufferLength = _this.analyser.frequencyBinCount;
+            var dataArray = new Uint8Array(bufferLength);
+            // let dataArray = new Float32Array(bufferLength);
+            _this.analyser.getByteFrequencyData(dataArray);
+            // this.analyser.getFloatFrequencyData(dataArray);
+            var getAverage = function (data) {
+                var sum = 0;
+                for (var i = 0; i < data.length; i++) {
+                    sum += data[i];
+                    return sum / data.length;
+                }
+            };
+            var avg = getAverage(dataArray);
+            if (avg > 0) {
+                console.log(avg);
+                _this.balls.genBall('Color1');
+            }
+        };
         this.balls.onLoadCallback$.subscribe(this.initScene);
     }
     AppComponent.prototype.ngOnInit = function () {
+        this.audioContext = new AudioContext();
+        this.analyser = this.audioContext.createAnalyser();
         this.b4w.InitModule(this.balls);
     };
     AppComponent.prototype.initTimers = function (id, value) {
@@ -43,6 +94,16 @@ var AppComponent = (function () {
     };
     AppComponent.prototype.sliderChanged = function (e) {
         this.initTimers(e.target.id, e.target.value);
+    };
+    AppComponent.prototype.recordModeChanged = function () {
+        var _this = this;
+        if (this.recordEnabled) {
+            // Clear ball timers
+            Object.keys(this.subs).forEach(function (key) {
+                _this.subs[key].unsubscribe();
+            });
+        }
+        this.enableAudioCapture();
     };
     AppComponent.prototype.ngOnDestroy = function () {
         console.log('Destroy timer');
